@@ -26,19 +26,20 @@ class Database:
         self.cursor = self.connection.cursor()
         print('DB Connection is successful')
 
-    def execute(self, query):
+    def execute(self, query, **kwargs):
         """
             Executes the given insert row, update row or create table query.
             The method does not return results.
 
             @param      query       SQL query string
+            @param      data
             @return     None
         """
         if self.connection is None:
             raise Exception('Database has to be connected first to execute query')
 
         try:
-            self.cursor.execute(query)
+            self.cursor.execute(query, kwargs)
             if self.query_type in ('w', 'write'):
                 self.connection.commit()
             print('Query executed successfully: ' + query)
