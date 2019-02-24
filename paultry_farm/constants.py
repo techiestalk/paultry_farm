@@ -16,6 +16,9 @@ LOG_TIME_FMT = '%Y-%m-%d %H:%M:%S'
 
 # Query constants
 class Query:
+    TABLE_GET_QUERY = 'SELECT {columns} FROM {table} WHERE {identifier} = :id_value;'
+    TABLE_GETALL_QUERY = 'SELECT {columns} FROM {table}'
+
     FEED_INSERT_QUERY = 'INSERT INTO FEED(FEED_NAME) VALUES(:feed_name)'
     FEED_UPDATE_QUERY = 'UPDATE FEED SET FEED_NAME= :to_name where FEED_NAME=:from_name'
     FEED_DELETE_QUERY = 'DELETE FROM FEED WHERE FEED_NAME=":feed_name";'
