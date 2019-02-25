@@ -199,6 +199,30 @@ class Database:
                          .format(columns, table_name, e))
             raise
 
+    def update_row(self, table_name, identifier_column, identifier_column_value,
+                   condition_operator='==', **kwargs):
+        if self.connection is None:
+            raise Exception('Database has to be connected first to execute query')
+
+        query = 'UPDATE {table_name} SET '.format(table_name=table_name)
+
+        column_list = ['{0}=:{0}'.format(column_name) for column_name in kwargs]
+        query += ', '.join(column_list)
+        query += ' WHERE {}{}{}'.format(identifier_column, condition_operator, identifier_column_value)
+
+        try:
+            logger.info('Executing query: ' + query)
+            if kwargs:
+                logger.info('Query arguments: {}'.format(kwargs))
+
+            # Run query and commit
+            self.cursor.execute(query, kwargs)
+            self.connection.commit()
+        except Exception as e:
+            logger.error('Failed to update fields "{}" in table: {}\nCaused by: {}'
+                         .format(kwargs.keys(), table_name, e))
+            raise
+
     def close(self):
         if self.connection is not None:
             self.cursor.close()
@@ -210,48 +234,57 @@ open_db_connection = Database
 
 if __name__ == '__main__':
     with open_db_connection() as db:
-        db.insert_row('test1', name='user_5', pay=1000, address='chennai')
+        db.update_row(
+            table_name='test1',
+            identifier_column='id',
+            identifier_column_value='1',
+            street='saidapet',
+            pay=1000
+        )
 
     # with open_db_connection() as db:
-    #     # rows = db.get_values('feed', 'feed_name')
-    #     result = db.get_values('test1', 'pay', 'name', identifier='address', id_value='chennai')
-    #     # result = db.get_values('test1', 'pay', 'name')
-    #     logger.info(result)
+    #     db.insert_row('test1', name='user_5', pay=1000, address='chennai')
     #
-    #     result = db.get_values('test1')
-    #     logger.info(result)
+    # # with open_db_connection() as db:
+    # #     # rows = db.get_values('feed', 'feed_name')
+    # #     result = db.get_values('test1', 'pay', 'name', identifier='address', id_value='chennai')
+    # #     # result = db.get_values('test1', 'pay', 'name')
+    # #     logger.info(result)
+    # #
+    # #     result = db.get_values('test1')
+    # #     logger.info(result)
+    # #
+    # #     result = db.get_values('test1', 'pay', 'name')
+    # #     logger.info(result)
+    # #
+    # #     # Negative case
+    # #     result = db.get_values('test2', 'pay', 'name1')
+    # #     logger.info(result)
     #
-    #     result = db.get_values('test1', 'pay', 'name')
-    #     logger.info(result)
+    # # # Test drop tables
+    # # table = 'FEED'
+    # # drop = 'DROP TABLE ' + table
+    # # with open_db_connection('w') as db:
+    # #     db.execute(drop)
+    # #     print("Table dropped: " + table)
     #
-    #     # Negative case
-    #     result = db.get_values('test2', 'pay', 'name1')
-    #     logger.info(result)
-
-    # # Test drop tables
-    # table = 'FEED'
-    # drop = 'DROP TABLE ' + table
-    # with open_db_connection('w') as db:
-    #     db.execute(drop)
-    #     print("Table dropped: " + table)
-
-    # # Test create tables
-    # with Database() as db:
-    #     create_1 = "create table TEST1(" \
-    #                "ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
-    #                "NAME CHAR(50) NOT NULL, " \
-    #                "PAY INTEGER NOT NULL, " \
-    #                "ADDRESS CHAR(50) NOT NULL," \
-    #                " UNIQUE (NAME)" \
-    #                ");"
-    #     db.execute(create_1)
-
-    # # get_feed_query = 'select * from FEED where FEED_NAME like "VEG%";'
-    # get_feed_query = "select DISTINCT(FEED_NAME) from FEED"
+    # # # Test create tables
+    # # with Database() as db:
+    # #     create_1 = "create table TEST1(" \
+    # #                "ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
+    # #                "NAME CHAR(50) NOT NULL, " \
+    # #                "PAY INTEGER NOT NULL, " \
+    # #                "ADDRESS CHAR(50) NOT NULL," \
+    # #                " UNIQUE (NAME)" \
+    # #                ");"
+    # #     db.execute(create_1)
     #
-    # with open_db_connection('write') as db:
-    #     result_list = db.execute_get_all_rows(get_feed_query)
-    #
-    # for result in result_list:
-    #     feed_name = result[0]
-    #     logger.info('Feed Name:' + feed_name)
+    # # # get_feed_query = 'select * from FEED where FEED_NAME like "VEG%";'
+    # # get_feed_query = "select DISTINCT(FEED_NAME) from FEED"
+    # #
+    # # with open_db_connection('write') as db:
+    # #     result_list = db.execute_get_all_rows(get_feed_query)
+    # #
+    # # for result in result_list:
+    # #     feed_name = result[0]
+    # #     logger.info('Feed Name:' + feed_name)
