@@ -208,7 +208,7 @@ class Database:
 
         column_list = ['{0}=:{0}'.format(column_name) for column_name in kwargs]
         query += ', '.join(column_list)
-        query += ' WHERE {}{}{}'.format(identifier_column, condition_operator, identifier_column_value)
+        query += ' WHERE {} {}  {}'.format(identifier_column, condition_operator, identifier_column_value)
 
         try:
             logger.info('Executing query: ' + query)
